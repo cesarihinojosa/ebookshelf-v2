@@ -5,16 +5,16 @@ from dataclasses import dataclass
 
 @dataclass
 class Book:
-    title: str
-    author: str
     image_url: str
-    product_url: str
 
+#TODO: add logging
 class GoodreadsAdapter:
     """
     Scapes Goodreads to retrive data.
     """
 
+    # TODO: Clean up
+    # TODO: Add data caching/backup
     def get_books(self):
 
         start = 1
@@ -31,7 +31,7 @@ class GoodreadsAdapter:
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.4'
             }
             response = requests.get(link, headers=headers) # sending off request
-            
+
             if response.status_code == 200: # catching an error if bad request
                 webpage = response.text
                 webpage = BeautifulSoup(webpage, "html.parser")
@@ -69,11 +69,9 @@ class GoodreadsAdapter:
             else:
                 print("No match found during regex")
 
-        # creating the new url for larger images
-        large_images = ["https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/" + image + ".jpg" for image in large_image_codes]
-        print(large_images)
+        # creating the new url for larger images and wrap them as Book instances
+        books = [Book(image_url="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/" + code + ".jpg")
+                 for code in large_image_codes]
 
-        return large_images
-
-gra = GoodreadsAdapter()
-gra.get_books()
+        print(books)
+        return books

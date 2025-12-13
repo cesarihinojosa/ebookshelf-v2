@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World Full Stack App</title>
+    <title>ebookshelf</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,32 +12,81 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
         #output {
             background: #fff;
-            padding: 2rem;
+            padding: 1rem;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            font-size: 1.2rem;
+            font-size: 1rem;
             min-width: 300px;
             text-align: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 3rem;
+            align-items: center;
+        }
+        #output img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 6px;
+            display: block;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18), 0 1.5px 4px rgba(0,0,0,0.12);
         }
     </style>
 </head>
 <body>
-    <h1>FastAPI Hello World Frontend</h1>
     <div id="output">Loading...</div>
     <script>
-        fetch('http://127.0.0.1:8000/api')
+        fetch('/api/get_books')
             .then(response => response.json())
-            .then(data => {
-                document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+            .then(books => {
+                const out = document.getElementById('output');
+                out.textContent = '';
+                if (!Array.isArray(books) || books.length === 0) {
+                    out.textContent = 'No books found';
+                    return;
+                }
+                books.forEach(book => {
+                    const img = document.createElement('img');
+                    img.src = book.image_url;
+                    img.alt = 'Book cover';
+                    img.loading = 'lazy';
+                    out.appendChild(img);
+                });
             })
             .catch(error => {
                 document.getElementById('output').textContent = 'Error: ' + error;
             });
+
+        // --- Automatic smooth scroll logic ---
+        let scrollDirection = 1; // 1 = down, -1 = up
+        const scrollSpeed = 0.25; // pixels per frame (very slow)
+        function autoScroll() {
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            if (scrollDirection === 1) {
+                if (window.scrollY < maxScroll) {
+                    window.scrollBy(0, scrollSpeed);
+                } else {
+                    scrollDirection = -1;
+                }
+            } else {
+                if (window.scrollY > 0) {
+                    window.scrollBy(0, -scrollSpeed);
+                } else {
+                    scrollDirection = 1;
+                }
+            }
+            requestAnimationFrame(autoScroll);
+        }
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                requestAnimationFrame(autoScroll);
+            }, 500); // slight delay to allow content to load
+        });
     </script>
 </body>
 </html>
