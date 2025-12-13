@@ -16,7 +16,12 @@
             margin: 0;
         }
         #output {
-            background: #fff;
+            background-image: url('images/orange_blurry.svg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: #f2a375;
             padding: 1rem;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -27,7 +32,7 @@
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 3rem;
             align-items: center;
-        }
+            }
         #output img {
             width: 100%;
             height: auto;
@@ -41,6 +46,21 @@
 <body>
     <div id="output">Loading...</div>
     <script>
+        // Automatic scrolling effect
+        let scrollDirection = 1;
+        function autoScroll() {
+            const scrollTop = window.scrollY;
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+            if (scrollTop >= scrollHeight) {
+                scrollDirection = -1;
+            } else if (scrollTop <= 0) {
+                scrollDirection = 1;
+            }
+            window.scrollBy(0, scrollDirection * 0.5);
+        }
+        setInterval(autoScroll, 50);
+
         fetch('/api/get_books')
             .then(response => response.json())
             .then(books => {
@@ -61,32 +81,6 @@
             .catch(error => {
                 document.getElementById('output').textContent = 'Error: ' + error;
             });
-
-        // --- Automatic smooth scroll logic ---
-        let scrollDirection = 1; // 1 = down, -1 = up
-        const scrollSpeed = 0.25; // pixels per frame (very slow)
-        function autoScroll() {
-            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-            if (scrollDirection === 1) {
-                if (window.scrollY < maxScroll) {
-                    window.scrollBy(0, scrollSpeed);
-                } else {
-                    scrollDirection = -1;
-                }
-            } else {
-                if (window.scrollY > 0) {
-                    window.scrollBy(0, -scrollSpeed);
-                } else {
-                    scrollDirection = 1;
-                }
-            }
-            requestAnimationFrame(autoScroll);
-        }
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                requestAnimationFrame(autoScroll);
-            }, 500); // slight delay to allow content to load
-        });
     </script>
 </body>
 </html>
