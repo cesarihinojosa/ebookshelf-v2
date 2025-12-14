@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #f4f4f4;
+            background: #ffffff;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -16,12 +16,11 @@
             margin: 0;
         }
         #output {
-            background-image: url('images/orange_flux.svg');
             background-size: cover;
             background-attachment: fixed;
             background-repeat: no-repeat;
             background-position: center;
-            background-color: #f2a375;
+            background-color: #ffffff;
             padding: 1rem;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -81,6 +80,29 @@
             .catch(error => {
                 document.getElementById('output').textContent = 'Error: ' + error;
             });
+
+            function setSeasonalBackground() {
+                const month = new Date().getMonth(); // 0 = Jan, 11 = Dec
+                let imageUrl;
+
+                // Meteorological seasons
+                if (month >= 2 && month <= 4) {
+                    // Spring: March–May
+                    imageUrl = "images/spring.jpg";
+                } else if (month >= 5 && month <= 7) {
+                    // Summer: June–August
+                    imageUrl = "images/summer.jpg";
+                } else if (month >= 8 && month <= 10) {
+                    // Fall: September–November
+                    imageUrl = "images/orange_flux.svg";
+                } else {
+                    // Winter: December–February
+                    imageUrl = "images/blue_flux.svg";
+                }
+                const output = document.getElementById("output");
+                output.style.backgroundImage = `url('${imageUrl}')`;
+            }
+            setSeasonalBackground();
     </script>
 </body>
 </html>
