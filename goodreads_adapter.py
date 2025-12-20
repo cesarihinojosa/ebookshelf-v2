@@ -25,24 +25,45 @@ class GoodreadsAdapter:
     """
     Scapes Goodreads to retrive data.
     """
+    goodreads_uri = "https://www.goodreads.com"
+    headers = { # necessary to imitate a human
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.4'
+    }
 
-    # TODO: Clean up
-    # TODO: Add data caching/backup
-    def get_books(self, user_id: str) -> list[Book]:
+    def _optimize_images(self, images: list[str]) -> list[str]:
+        """
+        Optimize images by converting them to a larger size.
+        Args:
+            images (list[str]): list of image urls
+        Returns:
+            list[str]: list of optimized image urls
+        """
+        pattern = r"/books/(\d+[a-zA-Z]/\d+)" 
+        large_image_codes = []
+        for image in images:
+            match = re.search(pattern, image)
+            if match:
+                result = match.group(1)
+                large_image_codes.append(result)
+            else:
+                print("No match found during regex") # Hanlde this better
+        return large_image_codes
 
+    def get_books_read(self, user_id: str) -> list[Book]:
+        """
+        Fetches the books read by a user from Goodreads.
+        Args:
+            user_id (str): the user's ID on Goodreads
+        Returns:
+            list[Book]: a list of Book instances with optimized image URLs
+        """
         start = 1
-        current = start
-        end = 5000
-        books = []
-        small_images = []
+        end = 5000 # Arbitrary large number to prevent infinite loop
+        images = []
+        for i in range(start, end):
 
-        while current < end:
-
-            link = f"https://www.goodreads.com/review/list/{user_id}?page={current}&ref=nav_mybooks"
-            headers = { # necessary to imitate a human
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.4'
-            }
-            response = requests.get(link, headers=headers) # sending off request
+            link = f"{self.goodreads_uri}/review/list/{user_id}?page={i}&ref=nav_mybooks"
+            response = requests.get(link, headers=self.headers) # sending off request
             response.raise_for_status()
 
             webpage = response.text
@@ -64,25 +85,14 @@ class GoodreadsAdapter:
                     raise GOODREADS_UNAVAILABLE
 
                 img_src = img_tag['src']
-                small_images.append(img_src)
+                images.append(img_src)
                 
-            current += 1
-            if len(rows) < 2: # if there are no books on page
+            if len(rows) < 2: # break when there are no books left to scrape
                 break
 
-        pattern = r"/books/(\d+[a-zA-Z]/\d+)" 
-        large_image_codes = []
-        for image in small_images: # getting the ID from small image url
-            match = re.search(pattern, image)
-            if match:
-                result = match.group(1)
-                large_image_codes.append(result)
-            else:
-                print("No match found during regex")
-
+        optimized_images = self._optimize_images(images)
         # creating the new url for larger images and wrap them as Book instances
         books = [Book(image_url="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/" + code + ".jpg")
-                 for code in large_image_codes]
+                 for code in optimized_images]
 
-        print(books)
         return books
