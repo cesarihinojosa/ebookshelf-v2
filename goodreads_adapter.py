@@ -3,7 +3,6 @@ import requests
 import re
 from dataclasses import dataclass
 
-
 class ApiError(Exception):
     def __init__(self, code: str, message: str, status_code: int = 500):
         self.code = code
@@ -29,7 +28,7 @@ class GoodreadsAdapter:
 
     # TODO: Clean up
     # TODO: Add data caching/backup
-    def get_books(self):
+    def get_books(self, user_id: str) -> list[Book]:
 
         start = 1
         current = start
@@ -39,37 +38,35 @@ class GoodreadsAdapter:
 
         while current < end:
 
-            link = f"https://www.goodreads.com/review/list/144045223?page={current}&ref=nav_mybooks"
-            current += 1
+            link = f"https://www.goodreads.com/review/list/{user_id}?page={current}&ref=nav_mybooks"
             headers = { # necessary to imitate a human
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.4'
             }
             response = requests.get(link, headers=headers) # sending off request
+            response.raise_for_status()
 
-            if response.status_code == 200: # catching an error if bad request
-                webpage = response.text
-                webpage = BeautifulSoup(webpage, "html.parser")
-                table = webpage.find("table", id="books")
+            webpage = response.text
+            webpage = BeautifulSoup(webpage, "html.parser")
 
-                if not table:
+            table = webpage.find("table", id="books")
+            if not table:
+                raise GOODREADS_UNAVAILABLE
+
+            rows = table.find_all('tr')
+            rows = rows[1:]
+            for row in rows:
+                cover = row.find('td', class_='field cover')
+                if not cover:
                     raise GOODREADS_UNAVAILABLE
 
-                rows = table.find_all('tr')
-                rows = rows[1:]
-                for row in rows:
+                img_tag = cover.find("img")
+                if not img_tag and not img_tag.has_attr('src'):
+                    raise GOODREADS_UNAVAILABLE
 
-                    cover = row.find('td', class_='field cover')
-                    if not cover:
-                        raise GOODREADS_UNAVAILABLE
-
-                    img_tag = cover.find("img")
-                    if not img_tag and not img_tag.has_attr('src'):
-                        raise GOODREADS_UNAVAILABLE
-
-                    img_src = img_tag['src']
-                    small_images.append(img_src)
-            else:
-                print(f"Failed to retrieve page {current-1}. Status code: {response.status_code}")
+                img_src = img_tag['src']
+                small_images.append(img_src)
+                
+            current += 1
             if len(rows) < 2: # if there are no books on page
                 break
 

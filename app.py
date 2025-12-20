@@ -20,6 +20,6 @@ def read_root():
 
 @app.get("/api/get_books")
 def read_root():
-    return goodreads_adapter.get_books()
+    return goodreads_adapter.get_books(144045223)
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
