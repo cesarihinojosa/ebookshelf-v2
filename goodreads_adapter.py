@@ -62,8 +62,8 @@ class GoodreadsAdapter:
         images = []
         for i in range(start, end):
 
-            link = f"{self.goodreads_uri}/review/list/{user_id}?page={i}&ref=nav_mybooks"
-            response = requests.get(link, headers=self.headers) # sending off request
+            url = f"{self.goodreads_uri}/review/list/{user_id}?page={i}&ref=nav_mybooks&shelf=read"
+            response = requests.get(url, headers=self.headers) # sending off request
             response.raise_for_status()
 
             webpage = response.text
