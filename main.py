@@ -20,6 +20,6 @@ def read_root():
 
 @app.get("/api/get_books")
 def read_root():
-    return goodreads_adapter.get_books_read(144045223)
+    return goodreads_adapter.get_books_read(144045223) # TODO: have the client send the user_id
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

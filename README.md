@@ -9,7 +9,7 @@ EbookShelf v2 is a web application for managing and browsing your ebook collecti
 
 ## Project Structure
 ```
-app.py                # Main Flask application
+app.py                # Main FastAPI application
 goodreads_adapter.py  # Goodreads API integration
 requirements.txt      # Python dependencies
 static/
@@ -35,11 +35,17 @@ static/
    ```
 
 ### Running the Application
-1. Start the Flask server:
+1. Start the FastAPI server:
    ```bash
-   python3 -m uvicorn app:app --reload
+   uvicorn app:app --reload
    ```
-2. Open your browser and go to `http://localhost:5000`.
+2. Open your browser and go to `http://localhost:8000`.
+
+## API Endpoints
+
+- `/` : Serves the main web interface (`static/index.html`)
+- `/ebooks` : Returns a list of ebooks in JSON format
+- `/goodreads/{book_id}` : Fetches Goodreads metadata for a book
 
 ## Usage
 - Access the web interface to browse your ebooks.
