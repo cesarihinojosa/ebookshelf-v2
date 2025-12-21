@@ -2,6 +2,9 @@ from bs4 import BeautifulSoup
 import requests
 import re
 from dataclasses import dataclass
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ApiError(Exception):
     def __init__(self, code: str, message: str, status_code: int = 500):
@@ -57,6 +60,7 @@ class GoodreadsAdapter:
         Returns:
             list[Book]: a list of Book instances with optimized image URLs
         """
+        logging.info(f"Fetching books read by user {user_id} from Goodreads")
         start = 1
         end = 5000 # Arbitrary large number to prevent infinite loop
         images = []
@@ -93,6 +97,5 @@ class GoodreadsAdapter:
         optimized_images = self._optimize_images(images)
         # creating the new url for larger images and wrap them as Book instances
         books = [Book(image_url="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/" + code + ".jpg")
-                 for code in optimized_images]
-
+                 for code in optimized_images] #TODO: fix me
         return books

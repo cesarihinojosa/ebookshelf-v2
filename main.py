@@ -18,8 +18,8 @@ app.add_middleware(
 def read_root():
     return {"message": "Hello, World!"}
 
-@app.get("/api/get_books")
+@app.get("/api/get_books_read")
 def read_root():
-    return goodreads_adapter.get_books_read(144045223) # TODO: have the client send the user_id
+    return goodreads_adapter.get_books_read(144045223) # TODO: have the client 
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

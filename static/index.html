@@ -60,7 +60,7 @@
         }
         setInterval(autoScroll, 50);
 
-        fetch('/api/get_books')
+        fetch('/api/get_books_read')
             .then(response => response.json())
             .then(books => {
                 const out = document.getElementById('output');
